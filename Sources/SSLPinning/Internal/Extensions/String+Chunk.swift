@@ -2,7 +2,7 @@ import Foundation
 
 extension String {
     /// Split into chunks of at most `length` characters (e.g. PEM line wrapping).
-    public func split(by length: Int) -> [String] {
+    func split(by length: Int) -> [String] {
         var startIndex = self.startIndex
         var results = [Substring]()
 

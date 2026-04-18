@@ -1,21 +1,24 @@
 import Foundation
+import Security
 
-public struct Trust {
+/// Module-internal view of `SecTrust` for building certificate chains and pin checks.
+struct Trust {
     let trust: SecTrust
-    public init(trust: SecTrust) {
+
+    init(trust: SecTrust) {
         self.trust = trust
     }
-    
-    public var certificates: [Certificate] {
+
+    var certificates: [Certificate] {
         let chain = SecTrustCopyCertificateChain(trust) as? [SecCertificate]
         return chain?.map { Certificate(cert: $0) } ?? []
     }
-    
-    public var isSelfSigned: Bool? {
+
+    var isSelfSigned: Bool? {
         certificates.count == 1 && (certificates.first?.isSelfSigned ?? false)
     }
-    
-    public func contains(_ pin: Fingerprint) -> Bool {
+
+    func contains(_ pin: Fingerprint) -> Bool {
         certificates.contains(where: { $0 == pin })
     }
 }

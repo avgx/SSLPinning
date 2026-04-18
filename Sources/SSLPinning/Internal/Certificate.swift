@@ -1,49 +1,51 @@
 import Foundation
+import Security
 
-/// Represent a single certificate.
-public struct Certificate: Fingerprint, @unchecked Sendable {
+/// Single certificate from a `SecTrust` chain; module-internal wrapper around `SecCertificate`.
+struct Certificate: Fingerprint, @unchecked Sendable {
     let cert: SecCertificate
-    public init(cert: SecCertificate) {
+
+    init(cert: SecCertificate) {
         self.cert = cert
     }
-    
-    public var commonName: String? {
+
+    var commonName: String? {
         var name: CFString?
         SecCertificateCopyCommonName(cert, &name)
         return name as String?
     }
-    
-    public var isSelfSigned: Bool? {
+
+    var isSelfSigned: Bool? {
         cert.isSelfSigned
     }
-    
-    public var emailAddresses: [String]? {
+
+    var emailAddresses: [String]? {
         var emails: CFArray?
         SecCertificateCopyEmailAddresses(cert, &emails)
         return emails as? [String]
     }
-    
-    public var serialNumber: String {
+
+    var serialNumber: String {
         ((SecCertificateCopySerialNumberData(cert, nil) as Data?) ?? Data()).hex(separator: ":")
     }
-    
-    public var subjectSummary: String? {
+
+    var subjectSummary: String? {
         SecCertificateCopySubjectSummary(cert) as String?
     }
-    
-    public var data: Data {
+
+    var data: Data {
         SecCertificateCopyData(cert) as Data
     }
-    
-    public var sha256: String {
+
+    var sha256: String {
         data.sha256().hex(separator: ":")
     }
-    
-    public var sha1: String {
+
+    var sha1: String {
         data.sha1().hex(separator: ":")
     }
-    
-    public var pem: String {
+
+    var pem: String {
         let lines = cert.data.base64EncodedString().split(by: 64)
         let prefix = "-----BEGIN CERTIFICATE-----"
         let suffix = "-----END CERTIFICATE-----"
