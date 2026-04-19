@@ -1,32 +1,46 @@
 import Foundation
 import Security
 
+// MARK: - iOS-first (embedded + Mac Catalyst)
+
+/// Validity bounds for ``CertificateInfo`` (`notValidBefore` / `notValidAfter`).
+///
+/// **iOS / iPadOS / tvOS / watchOS / visionOS, and Mac Catalyst:** Uses
+/// `SecCertificateCopyNotValidBeforeDate` / `SecCertificateCopyNotValidAfterDate` on **iOS 18+** (and aligned OS releases);
+/// on older OS versions both dates are `nil`.
+///
+/// **Native macOS:** Prefers those date APIs on **macOS 15+**; macOS 13–14 uses `SecCertificateCopyValues` only to read validity OIDs from the plist dictionary.
+
+#if canImport(Darwin) && (!os(macOS) || targetEnvironment(macCatalyst))
+
 extension Certificate {
-    /// Validity bounds from a single `SecCertificateCopyValues` pass (nil if the plist omits them).
     var validityRange: (notBefore: Date?, notAfter: Date?) {
-        Self.validityNotBeforeNotAfter(certificate: cert)
+        if #available(iOS 18.0, tvOS 18.0, watchOS 11.0, macCatalyst 18.0, visionOS 2.0, *) {
+            let before = SecCertificateCopyNotValidBeforeDate(cert).map { $0 as Date }
+            let after = SecCertificateCopyNotValidAfterDate(cert).map { $0 as Date }
+            return (before, after)
+        }
+        return (nil, nil)
+    }
+}
+
+// MARK: - Native macOS (validity via SecCertificateCopyValues fallback)
+
+#elseif os(macOS) && !targetEnvironment(macCatalyst)
+
+extension Certificate {
+    var validityRange: (notBefore: Date?, notAfter: Date?) {
+        if #available(macOS 15.0, *) {
+            let before = SecCertificateCopyNotValidBeforeDate(cert).map { $0 as Date }
+            let after = SecCertificateCopyNotValidAfterDate(cert).map { $0 as Date }
+            if before != nil || after != nil {
+                return (before, after)
+            }
+        }
+        return Self.validityNotBeforeNotAfter(certificate: cert)
     }
 
-    /// One-line issuer from the certificate when `SecCertificateCopyValues` exposes it.
-    var issuer: String? {
-        if let s = Self.propertyString(certificate: cert, oid: kSecOIDX509V1IssuerNameStd) {
-            return s
-        }
-        if let s = Self.propertyString(certificate: cert, oid: kSecOIDX509V1IssuerNameLDAP) {
-            return s
-        }
-        if let s = Self.propertyString(certificate: cert, oid: kSecOIDX509V1IssuerName) {
-            return s
-        }
-        return SecCertificateCopyLongDescription(nil, cert, nil) as String?
-    }
-
-    /// DNS names and IP literals from the Subject Alternative Name extension (empty if absent).
-    var subjectAlternativeNames: [String] {
-        Self.subjectAlternativeNames(from: cert)
-    }
-
-    // MARK: - SecCertificateCopyValues
+    // MARK: SecCertificateCopyValues (macOS 13–14 validity only)
 
     private static func innerDictionary(root: NSDictionary, oid: CFString) -> NSDictionary? {
         if let inner = root.object(forKey: oid) as? NSDictionary {
@@ -40,17 +54,6 @@ extension Certificate {
             }
         }
         return nil
-    }
-
-    private static func propertyValue(certificate: SecCertificate, oid: CFString) -> Any? {
-        guard let plist = SecCertificateCopyValues(certificate, nil, nil) else {
-            return nil
-        }
-        let root = plist as NSDictionary
-        guard let inner = innerDictionary(root: root, oid: oid) else {
-            return nil
-        }
-        return inner.object(forKey: kSecPropertyKeyValue)
     }
 
     private static func effectivePayload(inner: NSDictionary?) -> Any? {
@@ -119,21 +122,10 @@ extension Certificate {
         return nil
     }
 
-    private static func propertyString(certificate: SecCertificate, oid: CFString) -> String? {
-        guard let value = propertyValue(certificate: certificate, oid: oid) else { return nil }
-        if let s = value as? String { return s }
-        if let s = value as? NSString { return s as String }
-        if let d = firstDate(in: value) {
-            return ISO8601DateFormatter().string(from: d)
-        }
-        return nil
-    }
-
     private static func firstDate(in value: Any?) -> Date? {
         guard let value else { return nil }
         if let d = value as? Date { return d }
         if let d = value as? NSDate { return d as Date }
-        // `SecCertificateCopyValues` encodes X.509 validity as CFAbsoluteTime (`NSNumber` seconds since 2001-01-01).
         if let n = value as? NSNumber {
             return Date(timeIntervalSinceReferenceDate: n.doubleValue)
         }
@@ -186,7 +178,6 @@ extension Certificate {
         return asn1UTCorGeneralizedTime(from: string)
     }
 
-    /// ASN.1 UTCTime / GeneralizedTime as plain strings (e.g. `250101000000Z`, `20250418120000Z`).
     private static func asn1UTCorGeneralizedTime(from string: String) -> Date? {
         let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let last = trimmed.last, last == "Z" || last == "z" else { return nil }
@@ -207,46 +198,12 @@ extension Certificate {
         }
         return df.date(from: String(core))
     }
-
-    private static func subjectAlternativeNames(from certificate: SecCertificate) -> [String] {
-        guard let value = propertyValue(certificate: certificate, oid: kSecOIDSubjectAltName) else {
-            return []
-        }
-        var names: Set<String> = []
-        collectSANStrings(from: value, into: &names)
-        return names.sorted()
-    }
-
-    private static func collectSANStrings(from value: Any, into out: inout Set<String>) {
-        switch value {
-        case let s as String:
-            let t = s.trimmingCharacters(in: .whitespacesAndNewlines)
-            if t.isEmpty == false { out.insert(t) }
-        case let s as NSString:
-            collectSANStrings(from: s as String, into: &out)
-        case let arr as [Any]:
-            for el in arr { collectSANStrings(from: el, into: &out) }
-        case let arr as NSArray:
-            for idx in 0 ..< arr.count {
-                collectSANStrings(from: arr.object(at: idx), into: &out)
-            }
-        case let dict as NSDictionary:
-            if let v = dict.object(forKey: kSecPropertyKeyValue) {
-                collectSANStrings(from: v, into: &out)
-            } else {
-                let keyEnumerator = dict.keyEnumerator()
-                while let k = keyEnumerator.nextObject() {
-                    if let v = dict.object(forKey: k) {
-                        collectSANStrings(from: v, into: &out)
-                    }
-                }
-            }
-        case let dict as [AnyHashable: Any]:
-            for (_, v) in dict {
-                collectSANStrings(from: v, into: &out)
-            }
-        default:
-            break
-        }
-    }
 }
+
+#else
+
+extension Certificate {
+    var validityRange: (notBefore: Date?, notAfter: Date?) { (nil, nil) }
+}
+
+#endif

@@ -6,6 +6,15 @@ Small helpers for `URLAuthenticationMethodServerTrust` in a `URLSession` delegat
 
 **Layout:** [`Public/`](Sources/SSLPinning/Public/) is the API surface; [`Internal/`](Sources/SSLPinning/Internal/) holds implementation helpers (same `SSLPinning` module).
 
+### `CertificateInfo` and validity (iOS-first)
+
+Pinning only needs fingerprints; [`CertificateInfo`](Sources/SSLPinning/Public/Fingerprint.swift) adds optional metadata for UI and logging.
+
+| Field | iOS / iPadOS / Catalyst | Native macOS |
+|--------|-------------------------|--------------|
+| `commonName`, `subjectSummary`, serial, digests | From `Security` APIs on all platforms | Same |
+| `notValidBefore` / `notValidAfter` | `SecCertificateCopyNotValidBeforeDate` / `…AfterDate` on **iOS 18+** (nil below) | Same APIs on **macOS 15+**; macOS 13–14 uses [`SecCertificateCopyValues`](https://developer.apple.com/documentation/security/seccertificatecopyvalues(_:_:_:)) only to read validity from the returned plist |
+
 ## Usage
 
 `URLSession` must use a delegate that handles server-trust challenges. Call [`ServerTrustEvaluator.evaluate(_:)`](Sources/SSLPinning/Public/ServerTrustEvaluator.swift), then pass the returned [`TrustChallengeResult`](Sources/SSLPinning/Public/TrustChallengeResult.swift) to the completion handler. The evaluator is synchronous so you can call it directly from the delegate (no nested `Task` required).

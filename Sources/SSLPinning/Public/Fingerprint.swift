@@ -14,7 +14,7 @@ public func == (lhs: any Fingerprint, rhs: any Fingerprint) -> Bool {
 }
 
 /// Sendable snapshot of a server certificate for UI and errors (no `SecCertificate` reference).
-public struct CertificateInfo: Sendable, Equatable, Hashable, Fingerprint {
+public struct CertificateInfo: Sendable, Equatable, Hashable, Fingerprint, CustomStringConvertible {
     public let commonName: String?
     public let subjectSummary: String?
     public let serialNumber: String
@@ -23,10 +23,6 @@ public struct CertificateInfo: Sendable, Equatable, Hashable, Fingerprint {
     public let isSelfSigned: Bool?
     public let notValidBefore: Date?
     public let notValidAfter: Date?
-    /// Distinguished-name style issuer string when the platform provides it.
-    public let issuer: String?
-    /// DNS names and IP literals from the Subject Alternative Name extension (may be empty).
-    public let subjectAlternativeNames: [String]
 
     public init(
         commonName: String?,
@@ -36,9 +32,7 @@ public struct CertificateInfo: Sendable, Equatable, Hashable, Fingerprint {
         sha1: String,
         isSelfSigned: Bool? = nil,
         notValidBefore: Date? = nil,
-        notValidAfter: Date? = nil,
-        issuer: String? = nil,
-        subjectAlternativeNames: [String] = []
+        notValidAfter: Date? = nil
     ) {
         self.commonName = commonName
         self.subjectSummary = subjectSummary
@@ -48,8 +42,6 @@ public struct CertificateInfo: Sendable, Equatable, Hashable, Fingerprint {
         self.isSelfSigned = isSelfSigned
         self.notValidBefore = notValidBefore
         self.notValidAfter = notValidAfter
-        self.issuer = issuer
-        self.subjectAlternativeNames = subjectAlternativeNames
     }
 
     init(certificate: Certificate) {
@@ -62,9 +54,48 @@ public struct CertificateInfo: Sendable, Equatable, Hashable, Fingerprint {
             sha1: certificate.sha1,
             isSelfSigned: certificate.isSelfSigned,
             notValidBefore: validity.notBefore,
-            notValidAfter: validity.notAfter,
-            issuer: certificate.issuer,
-            subjectAlternativeNames: certificate.subjectAlternativeNames
+            notValidAfter: validity.notAfter
         )
+    }
+
+    /// Multi-line, YAML-shaped text safe to paste into logs, monospace UI, or a YAML viewer.
+    public var description: String {
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        func escapeForYamlDoubleQuoted(_ s: String) -> String {
+            s.replacingOccurrences(of: "\\", with: "\\\\")
+                .replacingOccurrences(of: "\"", with: "\\\"")
+        }
+
+        func yamlDoubleQuoted(_ s: String) -> String {
+            "\"\(escapeForYamlDoubleQuoted(s))\""
+        }
+
+        func yamlStringOrNull(_ s: String?) -> String {
+            guard let s else { return "null" }
+            return yamlDoubleQuoted(s)
+        }
+
+        func yamlDateOrNull(_ d: Date?) -> String {
+            guard let d else { return "null" }
+            return yamlDoubleQuoted(iso.string(from: d))
+        }
+
+        func yamlBoolOrNull(_ b: Bool?) -> String {
+            guard let b else { return "null" }
+            return b ? "true" : "false"
+        }
+
+        var lines: [String] = []
+        lines.append("commonName: \(yamlStringOrNull(commonName))")
+        lines.append("subjectSummary: \(yamlStringOrNull(subjectSummary))")
+        lines.append("serialNumber: \(yamlDoubleQuoted(serialNumber))")
+        lines.append("sha256: \(yamlDoubleQuoted(sha256))")
+        lines.append("sha1: \(yamlDoubleQuoted(sha1))")
+        lines.append("isSelfSigned: \(yamlBoolOrNull(isSelfSigned))")
+        lines.append("notValidBefore: \(yamlDateOrNull(notValidBefore))")
+        lines.append("notValidAfter: \(yamlDateOrNull(notValidAfter))")
+        return lines.joined(separator: "\n")
     }
 }
