@@ -1,7 +1,7 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "invalid_server_trust.error_description" : {
+    "sslpinning.invalid_server_trust.error_description" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -9,10 +9,16 @@
             "state" : "translated",
             "value" : "Unable to verify the server’s identity for %@."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось подтвердить подлинность сервера для %@."
+          }
         }
       }
     },
-    "invalid_server_trust.failure_reason" : {
+    "sslpinning.invalid_server_trust.failure_reason" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -20,10 +26,16 @@
             "state" : "translated",
             "value" : "The secure connection could not be validated because server trust data was missing, empty, or invalid."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Защищённое соединение не удалось проверить: данные доверия к серверу отсутствуют, пусты или недопустимы."
+          }
         }
       }
     },
-    "invalid_server_trust.recovery_suggestion" : {
+    "sslpinning.invalid_server_trust.recovery_suggestion" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -31,10 +43,16 @@
             "state" : "translated",
             "value" : "Retry after the server is fixed, or contact the service operator if this continues."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторите попытку после устранения неполадок на сервере или обратитесь к администратору сервиса, если сообщение повторяется."
+          }
         }
       }
     },
-    "pin_mismatch.error_description" : {
+    "sslpinning.pin_mismatch.error_description" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -42,10 +60,16 @@
             "state" : "translated",
             "value" : "The server’s certificate does not match the pin stored for %@."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сертификат сервера не совпадает с сохранённым для %@ отпечатком."
+          }
         }
       }
     },
-    "pin_mismatch.failure_reason" : {
+    "sslpinning.pin_mismatch.failure_reason" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -53,10 +77,16 @@
             "state" : "translated",
             "value" : "Configured pin (serial %1$@, SHA-256 %2$@) does not match the chain from the server (first leaf SHA-256: %3$@)."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настроенный отпечаток (серийный номер %1$@, SHA-256 %2$@) не совпадает с цепочкой от сервера (SHA-256 листового сертификата: %3$@)."
+          }
         }
       }
     },
-    "pin_mismatch.recovery_suggestion" : {
+    "sslpinning.pin_mismatch.recovery_suggestion" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -64,10 +94,16 @@
             "state" : "translated",
             "value" : "Do not bypass this warning. Update the server certificate or change your pin only after you have verified the new certificate out of band."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не игнорируйте это предупреждение. Обновите сертификат сервера или измените отпечаток только после того, как проверите новый сертификат вне приложения."
+          }
         }
       }
     },
-    "unknown_host.error_description" : {
+    "sslpinning.unknown_host.error_description" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -75,10 +111,16 @@
             "state" : "translated",
             "value" : "No certificate pin is configured for %@."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для %@ не настроен отпечаток сертификата."
+          }
         }
       }
     },
-    "unknown_host.failure_reason" : {
+    "sslpinning.unknown_host.failure_reason" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -86,10 +128,16 @@
             "state" : "translated",
             "value" : "The server presented a certificate chain; first leaf SHA-256: %@. Inspect it before trusting this host."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сервер представил цепочку сертификатов; SHA-256 листового сертификата: %@. Проверьте её перед тем как доверять этому узлу."
+          }
         }
       }
     },
-    "unknown_host.recovery_suggestion" : {
+    "sslpinning.unknown_host.recovery_suggestion" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -97,10 +145,16 @@
             "state" : "translated",
             "value" : "Add a pin for this host in your app configuration and retry once you intentionally trust this server."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавьте отпечаток для этого узла в настройках приложения и повторите попытку, если вы сознательно доверяете этому серверу."
+          }
         }
       }
     },
-    "system_trust_failed.error_description" : {
+    "sslpinning.system_trust_failed.error_description" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -108,10 +162,16 @@
             "state" : "translated",
             "value" : "The system could not establish a trusted TLS connection."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Системе не удалось установить доверенное TLS-соединение."
+          }
         }
       }
     },
-    "system_trust_failed.failure_reason_header" : {
+    "sslpinning.system_trust_failed.failure_reason_header" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -119,10 +179,16 @@
             "state" : "translated",
             "value" : "Reason: %@"
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Причина: %@"
+          }
         }
       }
     },
-    "system_trust_failed.recovery_suggestion" : {
+    "sslpinning.system_trust_failed.recovery_suggestion" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -130,10 +196,16 @@
             "state" : "translated",
             "value" : "Check the device date and time, network, VPN, and whether a proxy or firewall is intercepting HTTPS. For corporate networks, install the required trust anchors if appropriate."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверьте дату и время на устройстве, сеть, VPN, а также не перехватывает ли прокси или брандмауэр HTTPS. В корпоративной сети при необходимости установите доверенные корневые сертификаты."
+          }
         }
       }
     },
-    "url_error.client_certificate_rejected" : {
+    "sslpinning.url_error.client_certificate_rejected" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -141,10 +213,16 @@
             "state" : "translated",
             "value" : "The server rejected the client certificate."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сервер отклонил клиентский сертификат."
+          }
         }
       }
     },
-    "url_error.client_certificate_required" : {
+    "sslpinning.url_error.client_certificate_required" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -152,10 +230,16 @@
             "state" : "translated",
             "value" : "The server requires a client certificate."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сервер требует клиентский сертификат."
+          }
         }
       }
     },
-    "url_error.generic_tls" : {
+    "sslpinning.url_error.generic_tls" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -163,10 +247,16 @@
             "state" : "translated",
             "value" : "A TLS or certificate error occurred."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Произошла ошибка TLS или сертификата."
+          }
         }
       }
     },
-    "url_error.secure_connection_failed" : {
+    "sslpinning.url_error.secure_connection_failed" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -174,10 +264,16 @@
             "state" : "translated",
             "value" : "A secure connection to the server could not be made."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось установить защищённое соединение с сервером."
+          }
         }
       }
     },
-    "url_error.server_certificate_bad_date" : {
+    "sslpinning.url_error.server_certificate_bad_date" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -185,10 +281,16 @@
             "state" : "translated",
             "value" : "The server certificate has an invalid date range."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У сертификата сервера недопустимый диапазон дат."
+          }
         }
       }
     },
-    "url_error.server_certificate_not_yet_valid" : {
+    "sslpinning.url_error.server_certificate_not_yet_valid" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -196,10 +298,16 @@
             "state" : "translated",
             "value" : "The server certificate is not yet valid."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сертификат сервера ещё не действителен."
+          }
         }
       }
     },
-    "url_error.server_certificate_unknown_root" : {
+    "sslpinning.url_error.server_certificate_unknown_root" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -207,16 +315,28 @@
             "state" : "translated",
             "value" : "The server certificate chains to an unknown root."
           }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цепочка сертификата сервера ведёт к неизвестному корневому центру."
+          }
         }
       }
     },
-    "url_error.server_certificate_untrusted" : {
+    "sslpinning.url_error.server_certificate_untrusted" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "The server certificate was not trusted."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сертификату сервера не доверяют."
           }
         }
       }
