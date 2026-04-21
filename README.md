@@ -1,6 +1,6 @@
 # SSLPinning
 
-Small helpers for `URLAuthenticationMethodServerTrust` in a `URLSession` delegate, optional certificate pinning, and typed [`SSLPinningError`](Sources/SSLPinning/Public/SSLPinningError.swift) when pinning cancels a challenge.
+Small helpers for `URLAuthenticationMethodServerTrust` in a `URLSession` delegate, optional certificate pinning, and typed [`SSLPinningError`](Sources/SSLPinning/Public/SSLPinningError.swift) when pinning cancels a challenge. For task-level TLS failures from `URLSession`, use [`SSLPinningError.systemTrustFailureIfPresent(in:)`](Sources/SSLPinning/Public/SSLPinningError.swift) to map to ``SSLPinningError/systemTrustFailed``. User-visible strings use [`Localizable.xcstrings`](Sources/SSLPinning/Resources/Localizable.xcstrings) (English default; add locales beside it to translate).
 
 **Platforms:** macOS 12+, iOS 15+ (uses `SecTrustCopyCertificateChain`).
 

@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import SSLPinning
 
@@ -45,15 +46,18 @@ struct PinningPolicyUnitTests {
         #expect(decision == .certificateMismatch(expected: pin, presentedChain: [sample]))
     }
 
-    @Test func sslPinningError_descriptionsAreNonEmpty() {
+    @Test func sslPinningError_localizedFieldsAreNonEmpty() {
         let pin = Pin(host: "h", serialNumber: "s", sha256: "256", sha1: "1")
         let cases: [SSLPinningError] = [
             .invalidServerTrust(host: "h"),
             .pinMismatch(host: "h", expected: pin, presentedChain: [sample]),
             .unknownHost(host: "h", presentedChain: [sample]),
+            .systemTrustFailed(underlying: URLError(.serverCertificateUntrusted)),
         ]
         for err in cases {
             #expect(err.errorDescription?.isEmpty == false)
+            #expect(err.failureReason?.isEmpty == false)
+            #expect(err.recoverySuggestion?.isEmpty == false)
         }
     }
 }

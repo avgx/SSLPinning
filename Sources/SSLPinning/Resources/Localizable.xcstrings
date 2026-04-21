@@ -1,0 +1,226 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "invalid_server_trust.error_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to verify the server’s identity for %@."
+          }
+        }
+      }
+    },
+    "invalid_server_trust.failure_reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The secure connection could not be validated because server trust data was missing, empty, or invalid."
+          }
+        }
+      }
+    },
+    "invalid_server_trust.recovery_suggestion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry after the server is fixed, or contact the service operator if this continues."
+          }
+        }
+      }
+    },
+    "pin_mismatch.error_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server’s certificate does not match the pin stored for %@."
+          }
+        }
+      }
+    },
+    "pin_mismatch.failure_reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configured pin (serial %1$@, SHA-256 %2$@) does not match the chain from the server (first leaf SHA-256: %3$@)."
+          }
+        }
+      }
+    },
+    "pin_mismatch.recovery_suggestion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Do not bypass this warning. Update the server certificate or change your pin only after you have verified the new certificate out of band."
+          }
+        }
+      }
+    },
+    "unknown_host.error_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No certificate pin is configured for %@."
+          }
+        }
+      }
+    },
+    "unknown_host.failure_reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server presented a certificate chain; first leaf SHA-256: %@. Inspect it before trusting this host."
+          }
+        }
+      }
+    },
+    "unknown_host.recovery_suggestion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add a pin for this host in your app configuration and retry once you intentionally trust this server."
+          }
+        }
+      }
+    },
+    "system_trust_failed.error_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The system could not establish a trusted TLS connection."
+          }
+        }
+      }
+    },
+    "system_trust_failed.failure_reason_header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reason: %@"
+          }
+        }
+      }
+    },
+    "system_trust_failed.recovery_suggestion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check the device date and time, network, VPN, and whether a proxy or firewall is intercepting HTTPS. For corporate networks, install the required trust anchors if appropriate."
+          }
+        }
+      }
+    },
+    "url_error.client_certificate_rejected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server rejected the client certificate."
+          }
+        }
+      }
+    },
+    "url_error.client_certificate_required" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server requires a client certificate."
+          }
+        }
+      }
+    },
+    "url_error.generic_tls" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A TLS or certificate error occurred."
+          }
+        }
+      }
+    },
+    "url_error.secure_connection_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A secure connection to the server could not be made."
+          }
+        }
+      }
+    },
+    "url_error.server_certificate_bad_date" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server certificate has an invalid date range."
+          }
+        }
+      }
+    },
+    "url_error.server_certificate_not_yet_valid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server certificate is not yet valid."
+          }
+        }
+      }
+    },
+    "url_error.server_certificate_unknown_root" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server certificate chains to an unknown root."
+          }
+        }
+      }
+    },
+    "url_error.server_certificate_untrusted" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server certificate was not trusted."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
