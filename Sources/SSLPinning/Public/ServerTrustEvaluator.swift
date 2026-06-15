@@ -7,7 +7,9 @@ public final class ServerTrustEvaluator: @unchecked Sendable {
 
     /// Host → certificate chain from the last server-trust challenge for that host (sendable snapshots for UI).
     public private(set) var certificateChainsByHost: [String: [CertificateInfo]] = [:]
-
+    /// Host → trust status
+    public private(set) var trustStatusByHost: [String: SystemTrustStatus] = [:]
+    
     public init(policy: ServerTrustPolicy) {
         self.policy = policy
     }
@@ -40,7 +42,8 @@ public final class ServerTrustEvaluator: @unchecked Sendable {
 
         let presented = certificates.map(CertificateInfo.init(certificate:))
         certificateChainsByHost[host] = presented
-
+        trustStatusByHost[host] = trust.evaluateSystemTrust()
+        
         switch policy {
         case .system:
             return TrustChallengeResult(disposition: .performDefaultHandling, credential: nil)

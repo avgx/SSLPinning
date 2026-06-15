@@ -23,7 +23,8 @@ public struct CertificateInfo: Sendable, Equatable, Hashable, Fingerprint, Custo
     public let isSelfSigned: Bool?
     public let notValidBefore: Date?
     public let notValidAfter: Date?
-
+    public let pem: String?
+    
     public init(
         commonName: String?,
         subjectSummary: String?,
@@ -32,7 +33,8 @@ public struct CertificateInfo: Sendable, Equatable, Hashable, Fingerprint, Custo
         sha1: String,
         isSelfSigned: Bool? = nil,
         notValidBefore: Date? = nil,
-        notValidAfter: Date? = nil
+        notValidAfter: Date? = nil,
+        pem: String? = nil
     ) {
         self.commonName = commonName
         self.subjectSummary = subjectSummary
@@ -42,6 +44,7 @@ public struct CertificateInfo: Sendable, Equatable, Hashable, Fingerprint, Custo
         self.isSelfSigned = isSelfSigned
         self.notValidBefore = notValidBefore
         self.notValidAfter = notValidAfter
+        self.pem = pem
     }
 
     init(certificate: Certificate) {
@@ -54,7 +57,8 @@ public struct CertificateInfo: Sendable, Equatable, Hashable, Fingerprint, Custo
             sha1: certificate.sha1,
             isSelfSigned: certificate.isSelfSigned,
             notValidBefore: validity.notBefore,
-            notValidAfter: validity.notAfter
+            notValidAfter: validity.notAfter,
+            pem: certificate.pem
         )
     }
 

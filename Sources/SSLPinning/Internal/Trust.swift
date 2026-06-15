@@ -21,4 +21,27 @@ struct Trust {
     func contains(_ pin: Fingerprint) -> Bool {
         certificates.contains(where: { $0 == pin })
     }
+    
+    func evaluateSystemTrust() -> SystemTrustStatus {
+        var error: CFError?
+
+        let trusted = SecTrustEvaluateWithError(trust, &error)
+
+        let evaluatedChain = (SecTrustCopyCertificateChain(trust) as? [SecCertificate]) ?? []
+
+        let root = evaluatedChain.last.map {
+            CertificateInfo(certificate: Certificate(cert: $0))
+        }
+
+        let leaf = evaluatedChain.first.map {
+            CertificateInfo(certificate: Certificate(cert: $0))
+        }
+
+        return SystemTrustStatus(
+            isTrusted: trusted,
+            errorDescription: error?.localizedDescription,
+            leaf: leaf,
+            root: root
+        )
+    }
 }

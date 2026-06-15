@@ -119,7 +119,7 @@ struct PinningNetworkIntegrationTests {
     /// Performs one request, maps the URL error to ``SSLPinningError``, asserts on ``URLError.Code``, then rethrows for `#expect(throws:)`.
     private static func throwMappedSelfSignedBadSSL() async throws {
         let url = URL(string: "https://self-signed.badssl.com/")!
-        let (session, _) = NetworkSession.makeSession(policy: .system) {
+        let (session, delegate) = NetworkSession.makeSession(policy: .system) {
             Self.configureTimeouts($0)
         }
         defer { session.finishTasksAndInvalidate() }
@@ -154,6 +154,9 @@ struct PinningNetworkIntegrationTests {
         #expect((ssl.recoverySuggestion ?? "").isEmpty == false)
         #expect(ssl.failureReason?.contains(urlError.localizedDescription) == true)
 
+        #expect(!delegate.evaluator.certificateChainsByHost.isEmpty)
+        #expect(!delegate.evaluator.trustStatusByHost.isEmpty)
+        
         throw ssl
     }
 
