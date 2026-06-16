@@ -52,41 +52,58 @@
         }
       }
     },
-    "sslpinning.pin_mismatch.error_description" : {
+    "sslpinning.fingerprint_mismatch.error_description" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The server’s certificate does not match the pin stored for %@."
+            "value" : "The server’s certificate or public key does not match the pin stored for %@."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сертификат сервера не совпадает с сохранённым для %@ отпечатком."
+            "value" : "Сертификат или открытый ключ сервера не совпадает с сохранённым для %@ отпечатком."
           }
         }
       }
     },
-    "sslpinning.pin_mismatch.failure_reason" : {
+    "sslpinning.fingerprint_mismatch.failure_reason" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Configured pin (serial %1$@, SHA-256 %2$@) does not match the chain from the server (first leaf SHA-256: %3$@)."
+            "value" : "Configured pin (serial %1$@, certificate SHA-256 %2$@) does not match the chain from the server (first leaf certificate SHA-256: %3$@)."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Настроенный отпечаток (серийный номер %1$@, SHA-256 %2$@) не совпадает с цепочкой от сервера (SHA-256 листового сертификата: %3$@)."
+            "value" : "Настроенный отпечаток (серийный номер %1$@, SHA-256 сертификата %2$@) не совпадает с цепочкой от сервера (SHA-256 листового сертификата: %3$@)."
           }
         }
       }
     },
-    "sslpinning.pin_mismatch.recovery_suggestion" : {
+    "sslpinning.fingerprint_mismatch_spki.failure_reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configured SPKI pin (SHA-256 %1$@) does not match the chain from the server (first leaf SPKI SHA-256: %2$@)."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настроенный SPKI-отпечаток (SHA-256 %1$@) не совпадает с цепочкой от сервера (SPKI SHA-256 листового сертификата: %2$@)."
+          }
+        }
+      }
+    },
+    "sslpinning.fingerprint_mismatch.recovery_suggestion" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -150,6 +167,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Добавьте отпечаток для этого узла в настройках приложения и повторите попытку, если вы сознательно доверяете этому серверу."
+          }
+        }
+      }
+    },
+    "sslpinning.policy.pinning.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow only hosts whose certificate matches a configured fingerprint."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешать только узлы, сертификат которых совпадает с настроенным отпечатком."
+          }
+        }
+      }
+    },
+    "sslpinning.policy.pinning_spki.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow only hosts whose public key (SPKI) matches a configured hash."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешать только узлы, открытый ключ (SPKI) которых совпадает с настроенным хешем."
+          }
+        }
+      }
+    },
+    "sslpinning.policy.system.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use the system trust store; no app-level pinning."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Использовать системное хранилище доверия; без пининга на уровне приложения."
+          }
+        }
+      }
+    },
+    "sslpinning.policy.trust_everyone.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accept any server certificate (insecure; debugging only)."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Принимать любой сертификат сервера (небезопасно; только для отладки)."
           }
         }
       }

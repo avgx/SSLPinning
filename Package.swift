@@ -20,11 +20,19 @@ let package = Package(
             targets: ["SSLPinning"]
         ),
     ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-asn1.git", from: "1.7.0"),
+        .package(url: "https://github.com/apple/swift-certificates.git", from: "1.19.1")
+    ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "SSLPinning",
+            dependencies: [
+                .product(name: "SwiftASN1", package: "swift-asn1"),
+                .product(name: "X509", package: "swift-certificates"),
+            ],
             resources: [.process("Resources")]
         ),
         .testTarget(

@@ -10,16 +10,19 @@ Small helpers for `URLAuthenticationMethodServerTrust` in a `URLSession` delegat
 
 Pinning only needs fingerprints; [`CertificateInfo`](Sources/SSLPinning/Public/Fingerprint.swift) adds optional metadata for UI and logging.
 
-| Field | iOS / iPadOS / Catalyst | Native macOS |
-|--------|-------------------------|--------------|
-| `commonName`, `subjectSummary`, serial, digests | From `Security` APIs on all platforms | Same |
-| `notValidBefore` / `notValidAfter` | `SecCertificateCopyNotValidBeforeDate` / `…AfterDate` on **iOS 18+** (nil below) | Same APIs on **macOS 15+**; macOS 13–14 uses [`SecCertificateCopyValues`](https://developer.apple.com/documentation/security/seccertificatecopyvalues(_:_:_:)) only to read validity from the returned plist |
+| Field | Source |
+|--------|--------|
+| `commonName` | `SecCertificateCopyCommonName` (empty when absent) |
+| `subjectName`, `issuer`, `validityRange`, `spki` | Parsed from certificate DER via [swift-certificates](https://github.com/apple/swift-certificates) |
+| serial, `sha256`, `sha1` | `Security` APIs |
+
+Digests are lowercase hexadecimal with no separators (not Base64). `spki` is SHA-256 of the SubjectPublicKeyInfo DER; `sha256` / `sha1` are hashes of the full certificate DER.
 
 ## Usage
 
 `URLSession` must use a delegate that handles server-trust challenges. Call [`ServerTrustEvaluator.evaluate(_:)`](Sources/SSLPinning/Public/ServerTrustEvaluator.swift), then pass the returned [`TrustChallengeResult`](Sources/SSLPinning/Public/TrustChallengeResult.swift) to the completion handler. The evaluator is synchronous so you can call it directly from the delegate (no nested `Task` required).
 
-When `pinningError` is non-nil, the disposition is usually `.cancelAuthenticationChallenge`; the task will fail with a URL error. Treat `pinningError` as the structured reason (e.g. show UI and optionally append a new [`Pin`](Sources/SSLPinning/Public/Pin.swift) and retry).
+When `pinningError` is non-nil, the disposition is usually `.cancelAuthenticationChallenge`; the task will fail with a URL error. Treat `pinningError` as the structured reason (e.g. show UI and optionally append a new [`Fingerprint`](Sources/SSLPinning/Public/Fingerprint.swift) and retry).
 
 Challenges whose `authenticationMethod` is not server trust are answered with `.performDefaultHandling` so unrelated auth flows are not cancelled by mistake.
 
@@ -51,10 +54,12 @@ In a real app, keep one `ServerTrustEvaluator` per policy (or per session) so [`
 
 1. Load the root URL with `ServerTrustPolicy.pinning(existingPins)`.
 2. If the request throws, inspect the delegate’s last `TrustChallengeResult.pinningError` (or capture `result.pinningError` in the delegate and assign to your `@Observable` model before calling `completionHandler`).
-3. For [`unknownHost(host:presentedChain:)`](Sources/SSLPinning/Public/SSLPinningError.swift), show an alert with e.g. `presentedChain.first?.sha256` and build a new `Pin(host:serialNumber:sha256:sha1:)` from that [`CertificateInfo`](Sources/SSLPinning/Public/Fingerprint.swift) if the user chooses to trust this server for your app.
+3. For [`unknownHost(host:presentedChain:)`](Sources/SSLPinning/Public/SSLPinningError.swift), show an alert with e.g. `presentedChain.first?.sha256` and build `Fingerprint(host:certificate:)` from that [`CertificateInfo`](Sources/SSLPinning/Public/Fingerprint.swift) if the user chooses to trust this server for your app.
 4. Retry the same URL with `ServerTrustPolicy.pinning(existingPins + [newPin])`. No “wait inside the delegate”: the user action happens after the failed task, then a new task starts.
 
-For [`pinMismatch`](Sources/SSLPinning/Public/SSLPinningError.swift), do not retry until the configured pin or server certificate is corrected; continuing would defeat pinning.
+For [`fingerprintMismatch`](Sources/SSLPinning/Public/SSLPinningError.swift), do not retry until the configured pin or server certificate is corrected; continuing would defeat pinning.
+
+Policy descriptions for UI: `ServerTrustPolicy.localizedDescription(locale:)`. Strings resolve via [`SSLPinningLocalization`](Sources/SSLPinning/Public/SSLPinningLocalization.swift) with English fallback.
 
 ### Filtered tests (network)
 

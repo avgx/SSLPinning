@@ -6,12 +6,12 @@ import Testing
 /// Literal-IP to `example.com` (e.g. historic 93.184.216.34) is avoided: CDN edges differ; use a second DNS name on the same leaf instead (`www.example.com`).
 @Suite("Network integration", .tags(.network))
 struct PinningNetworkIntegrationTests {
-    /// example.com leaf as of 2026-04 (rotate when this test fails).
-    private static let examplePin = Pin(
+    /// example.com leaf as of 2026-06 (rotate when this test fails).
+    private static let examplePin = Fingerprint(
         host: "example.com",
-        serialNumber: "65:20:58:9E:F1:7E:B5:5C:66:44:33:F2:9F:2E:68:4A",
-        sha256: "1A:F6:27:C6:C2:AC:99:2E:3C:91:02:43:8F:46:7C:4C:23:8D:31:12:32:5A:C7:CF:90:03:D7:7F:75:EF:FF:BA",
-        sha1: "AE:0E:78:A8:E1:DA:BE:74:93:2D:D8:81:2D:EE:A5:EE:E7:CF:A6:E7"
+        serialNumber: "1aa73fea257be3334b9a29552e6f878e",
+        sha256: "beab14cf39678fda0ef1606eedb818c2298ba2cc7a00886e7dc2d2410f24cd35",
+        sha1: "e7f60d1afecdffdf164b7479386bbe67cdd8e51e"
     )
 
     private static func configureTimeouts(_ configuration: URLSessionConfiguration, request: TimeInterval = 30) {
@@ -33,15 +33,12 @@ struct PinningNetworkIntegrationTests {
             #expect(data.count > 0)
             #expect(delegate.lastPinningError == nil)
             let certs = delegate.evaluator.certificateChainsByHost["example.com"]
-            if let certs {
-                print("\(certs)")
-            }
             #expect(certs?.first?.serialNumber == examplePin.serialNumber)
         }
 
-        // 2) example.com + wrong pin → pinMismatch on delegate
+        // 2) example.com + wrong pin → fingerprintMismatch on delegate
         do {
-            let wrong = Pin(host: "example.com", serialNumber: "00", sha256: "00", sha1: "00")
+            let wrong = Fingerprint(host: "example.com", serialNumber: "00", sha256: "00", sha1: "00")
             let (session, delegate) = NetworkSession.makeSession(policy: .pinning([wrong])) {
                 Self.configureTimeouts($0)
             }
@@ -51,9 +48,9 @@ struct PinningNetworkIntegrationTests {
                 _ = try await session.data(from: url)
             }
             #expect({
-                guard case .pinMismatch(let host, let expected, _) = delegate.lastPinningError else { return false }
+                guard case .fingerprintMismatch(let host, let expected, _) = delegate.lastPinningError else { return false }
                 return host == "example.com" && expected == wrong
-            }(), "Expected pinMismatch, got \(String(describing: delegate.lastPinningError))")
+            }(), "Expected fingerprintMismatch, got \(String(describing: delegate.lastPinningError))")
         }
 
         // 3) example.com + pinning([]) → unknownHost with non-empty chain
@@ -74,11 +71,11 @@ struct PinningNetworkIntegrationTests {
 
         // 4) Same leaf, second public name: `www.example.com` typically shares the example.com certificate (SAN).
         do {
-            let wwwPin = Pin(
+            let wwwPin = Fingerprint(
                 host: "www.example.com",
-                serialNumber: examplePin.serialNumber,
+                serialNumber: examplePin.serialNumber!,
                 sha256: examplePin.sha256,
-                sha1: examplePin.sha1
+                sha1: examplePin.sha1!
             )
             let (session, delegate) = NetworkSession.makeSession(policy: .pinning([examplePin, wwwPin])) {
                 Self.configureTimeouts($0)
@@ -156,11 +153,11 @@ struct PinningNetworkIntegrationTests {
 
         #expect(!delegate.evaluator.certificateChainsByHost.isEmpty)
         #expect(!delegate.evaluator.trustStatusByHost.isEmpty)
-        
+
         throw ssl
     }
 
-    /// Cloudflare DNS resolver HTTPS by literal IPv4; exercises `CertificateInfo` validity on supported OS versions.
+    /// Cloudflare DNS resolver HTTPS by literal IPv4; exercises `CertificateInfo` validity from X509 parsing.
     @Test func cloudflareOneDotOneDotOneByIP() async throws {
         let literal = "1.1.1.1"
         let (session, delegate) = NetworkSession.makeSession(policy: .trustEveryone, suppressHttpRedirects: true) {
@@ -171,7 +168,6 @@ struct PinningNetworkIntegrationTests {
         let url = URL(string: "https://\(literal)/")!
         let (data, response) = try await session.data(from: url)
         let status = (response as? HTTPURLResponse)?.statusCode
-        // Redirects are suppressed so the body may be empty; TLS and certificate extraction still succeed.
         #expect(status.map { (200 ... 399).contains($0) } == true)
         #expect(data.count >= 0)
         #expect(
@@ -180,23 +176,10 @@ struct PinningNetworkIntegrationTests {
         )
         guard let leaf = delegate.evaluator.certificateChainsByHost[literal]?.first else { return }
 
-        #if os(macOS) && !targetEnvironment(macCatalyst)
-        #expect(leaf.notValidBefore != nil)
-        #expect(leaf.notValidAfter != nil)
-        if let start = leaf.notValidBefore, let end = leaf.notValidAfter {
-            #expect(start < Date() && end > Date())
-        }
-        #else
-        if #available(iOS 18.0, tvOS 18.0, watchOS 11.0, macCatalyst 18.0, visionOS 2.0, *) {
-            #expect(leaf.notValidBefore != nil, "Validity requires iOS 18+ (and aligned) Security APIs on embedded platforms")
-            #expect(leaf.notValidAfter != nil)
-            if let start = leaf.notValidBefore, let end = leaf.notValidAfter {
-                #expect(start < Date() && end > Date())
-            }
-        }
-        #endif
+        let validity = leaf.validityRange
+        #expect(validity.notBefore < Date() && validity.notAfter > Date())
 
-        let pinName = Pin(host: literal, serialNumber: leaf.serialNumber, sha256: leaf.sha256, sha1: leaf.sha1)
+        let pinName = Fingerprint(host: literal, certificate: leaf)
         let (pinSession, pinDelegate) = NetworkSession.makeSession(policy: .pinning([pinName]), suppressHttpRedirects: true) {
             $0.timeoutIntervalForRequest = 20
             $0.timeoutIntervalForResource = 30

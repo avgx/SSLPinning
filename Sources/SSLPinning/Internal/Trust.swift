@@ -18,10 +18,19 @@ struct Trust {
         certificates.count == 1 && (certificates.first?.isSelfSigned ?? false)
     }
 
-    func contains(_ pin: Fingerprint) -> Bool {
-        certificates.contains(where: { $0 == pin })
+    func contains(expected: Fingerprint) -> Bool {
+        certificates.contains { certificate in
+            if expected.isSPKIOnly {
+                guard let hash = try? certificate.spki else { return false }
+                return hash == expected.sha256
+            }
+            guard let serial = expected.serialNumber, let sha1 = expected.sha1 else { return false }
+            return certificate.serialNumber == serial
+                && certificate.sha256 == expected.sha256
+                && certificate.sha1 == sha1
+        }
     }
-    
+
     func evaluateSystemTrust() -> SystemTrustStatus {
         var error: CFError?
 
@@ -29,12 +38,12 @@ struct Trust {
 
         let evaluatedChain = (SecTrustCopyCertificateChain(trust) as? [SecCertificate]) ?? []
 
-        let root = evaluatedChain.last.map {
-            CertificateInfo(certificate: Certificate(cert: $0))
+        let root = evaluatedChain.last.flatMap { cert in
+            try? CertificateInfo(certificate: Certificate(cert: cert))
         }
 
-        let leaf = evaluatedChain.first.map {
-            CertificateInfo(certificate: Certificate(cert: $0))
+        let leaf = evaluatedChain.first.flatMap { cert in
+            try? CertificateInfo(certificate: Certificate(cert: cert))
         }
 
         return SystemTrustStatus(

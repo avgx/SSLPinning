@@ -2,22 +2,28 @@ import Foundation
 
 /// Result of comparing the server chain to the configured pin list for the challenge host (no `SecTrust`).
 internal enum PinningDecision: Equatable, Sendable {
-    case certificateMatchesPin
-    case certificateMismatch(expected: Pin, presentedChain: [CertificateInfo])
+    case match
+    case mismatch(expected: Fingerprint, presentedChain: [CertificateInfo])
     case hostNotInPinList(presentedChain: [CertificateInfo])
 }
 
 internal func makePinningDecision(
-    pins: [Pin],
-    host: String,
-    chainContainsPin: (Pin) -> Bool,
+    pins: [Fingerprint],
+    challengeHost: String,
+    chainMatches: (Fingerprint) -> Bool,
     presentedChain: [CertificateInfo]
 ) -> PinningDecision {
-    guard let pin = pins.first(where: { $0.host == host }) else {
+    let hostPins = pins.filter {
+        $0.host.caseInsensitiveCompare(challengeHost) == .orderedSame
+    }
+
+    guard let firstPin = hostPins.first else {
         return .hostNotInPinList(presentedChain: presentedChain)
     }
-    if chainContainsPin(pin) {
-        return .certificateMatchesPin
+
+    if hostPins.contains(where: chainMatches) {
+        return .match
     }
-    return .certificateMismatch(expected: pin, presentedChain: presentedChain)
+
+    return .mismatch(expected: firstPin, presentedChain: presentedChain)
 }

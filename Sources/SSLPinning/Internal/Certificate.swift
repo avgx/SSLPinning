@@ -2,7 +2,7 @@ import Foundation
 import Security
 
 /// Single certificate from a `SecTrust` chain; module-internal wrapper around `SecCertificate`.
-struct Certificate: Fingerprint, @unchecked Sendable {
+struct Certificate: @unchecked Sendable {
     let cert: SecCertificate
 
     init(cert: SecCertificate) {
@@ -26,7 +26,7 @@ struct Certificate: Fingerprint, @unchecked Sendable {
     }
 
     var serialNumber: String {
-        ((SecCertificateCopySerialNumberData(cert, nil) as Data?) ?? Data()).hex(separator: ":")
+        ((SecCertificateCopySerialNumberData(cert, nil) as Data?) ?? Data()).hex()
     }
 
     var subjectSummary: String? {
@@ -38,11 +38,17 @@ struct Certificate: Fingerprint, @unchecked Sendable {
     }
 
     var sha256: String {
-        data.sha256().hex(separator: ":")
+        data.sha256().hex()
     }
 
     var sha1: String {
-        data.sha1().hex(separator: ":")
+        data.sha1().hex()
+    }
+
+    var spki: String {
+        get throws {
+            try cert.spkiHash().hex()
+        }
     }
 
     var pem: String {

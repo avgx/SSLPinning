@@ -16,8 +16,8 @@ extension Data {
         return Data(hash)
     }
 
-    func hex(separator: String = "") -> String {
-        let data: Data = self
-        return data.map { String(format: "%02X", $0) }.joined(separator: separator)
+    /// Lowercase hexadecimal string with no separators.
+    func hex() -> String {
+        map { String(format: "%02x", $0) }.joined()
     }
 }
