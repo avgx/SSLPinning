@@ -102,6 +102,7 @@ VFkmpetVcBm7L3t+T6AdGF1Sym5NtUaxf+2WIxPb3aYinYzb
     }
 
     /// openssl x509 -in leaf.pem -pubkey -noout | openssl pkey -pubin -outform DER | openssl dgst -sha256
+    /// openssl s_client -connect beta.axxonnet.com:443 -servername beta.axxonnet.com | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256
     @Test
     func spkiHashMatchesOpenSSL() throws {
         let hash = try leaf.spkiHash()
